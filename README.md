@@ -48,7 +48,7 @@ El análisis valida que, aunque los modelos no lineales como Random Forest y k-N
 
 ## 📂 Estructura del Repositorio
 * `supervisado_analysis.R`: Código fuente completo en R.
-* `data`: `data.csv`: Dataset WDBC. `variables.csv` : información del dataset
+* `data/`: carpeta con los archivos `data.csv`(Dataset WDBC) y `variables.csv` (información del dataset)
 * `plots/`: Carpeta con gráficos de afinación y curvas ROC.
 ---
 
