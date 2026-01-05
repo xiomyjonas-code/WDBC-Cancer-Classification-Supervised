@@ -184,51 +184,79 @@ cat("Paper (3 vars): ", round(auc_paper, 4), "\n")
 # por el modelo del Paper (0.997). Se seleccionan estos dos para la gráfica final.
 
 
-#### ---- 7. Visualización Comparativa ---- ####
 
-# Gráfico 1: Modelo SVM Optimizado
+#### ---- 7. Visualización Comparativa Global ---- ####
+
+# Definición de la paleta de colores
+# SVM=Rosa, RF=Verde, KNN=Naranja, Paper=Azul
+cols <- c("pink", "darkgreen", "orange", "blue") 
+
+# Gráfico 1: Modelo Base (SVM - Mayor AUC)
 plot(roc_svm, 
-     col = "pink", 
-     main = "Comparativa: SVM Optimizado vs Paper Original",
+     col = cols[1], 
+     main = "Comparativa Global: Modelos Supervisados vs Paper",
      xlab = "Tasa de Falsos Positivos (1 - Especificidad)",
      ylab = "Tasa de Verdaderos Positivos (Sensibilidad)",
      lwd = 3, 
      legacy.axes = TRUE, 
      print.auc = FALSE)
 
-# Gráfico 2: Modelo Paper (Superpuesto)
+# Gráfico 2: Añadir Random Forest
+plot(roc_rf, 
+     col = cols[2], 
+     add = TRUE, 
+     lwd = 2)
+
+# Gráfico 3: Añadir k-NN
+plot(roc_knn, 
+     col = cols[3], 
+     add = TRUE, 
+     lwd = 2)
+
+# Gráfico 4: Añadir Modelo Paper (Referencia)
+# Se usa línea punteada (lty=2) para distinguirlo como el "Gold Standard"
 plot(roc_paper, 
-     col = "blue", 
+     col = cols[4], 
      add = TRUE, 
      lwd = 3, 
      lty = 2)
 
-# Leyenda
+# Leyenda Dinámica (Incluye los 4 modelos)
 legend("bottomright", 
        legend = c(paste0("SVM (21 vars) - AUC: ", round(auc_svm, 4)),
-                  paste0("Paper (3 vars)    - AUC: ", round(auc_paper, 4))),
-       col = c("pink", "blue"), 
-       lwd = 3, 
-       lty = c(1, 2), 
+                  paste0("RF (21 vars)  - AUC: ", round(auc_rf, 4)),
+                  paste0("k-NN (21 vars)- AUC: ", round(auc_knn, 4)),
+                  paste0("Paper (3 vars)- AUC: ", round(auc_paper, 4))),
+       col = cols, 
+       lwd = c(3, 2, 2, 3), 
+       lty = c(1, 1, 1, 2), # Sólida, Sólida, Sólida, Punteada
        bg = "white", 
-       cex = 0.9)
+       cex = 0.8) # Texto ligeramente más pequeño para ajustar
 
 grid()
 
 
 #### ---- 8. Matrices de Confusión ---- ####
 
-# Predicciones finales (Clases)
-preds_svm_final <- predict(svmClean, newdata = testData_clean)
+# Predicciones finales de todos los modelos
+preds_svm_final   <- predict(svmClean, newdata = testData_clean)
+preds_rf_final    <- predict(rfClean,  newdata = testData_clean)
+preds_knn_final   <- predict(knnClean, newdata = testData_clean)
 preds_paper_final <- predict(modelPaper, newdata = testData_paper)
 
+# 8.1. Matriz SVM (Mejor modelo propio)
 cat("\n--- Matriz de Confusión: SVM Optimizado ---\n")
 cm_svm <- confusionMatrix(preds_svm_final, testData_clean$Diagnosis, positive= "M")
 print(cm_svm$table)
 
+# 8.2. Matriz Paper (Referencia)
 cat("\n--- Matriz de Confusión: Paper Original ---\n")
 cm_paper <- confusionMatrix(preds_paper_final, testData_paper$Diagnosis, positive ="M")
 print(cm_paper$table)
+
+# Opcional: Si se desea ver las matrices de RF o KNN, descomentar abajo:
+#cat("\n--- Matriz de Confusión: Random Forest ---\n")
+#print(confusionMatrix(preds_rf_final, testData_clean$Diagnosis, positive="M")$table) 
 
 #### ---- 9. Conclusiones Finales ---- ####
 
